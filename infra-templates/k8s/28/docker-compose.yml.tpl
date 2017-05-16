@@ -265,6 +265,15 @@ rancher-kubernetes-auth:
         {{- end }}
         io.rancher.container.create_agent: "true"
         io.rancher.container.agent.role: environmentAdmin
+    health_check:
+        request_line: GET /healthcheck HTTP/1.0
+        port: 10240
+        interval: 2000
+        response_timeout: 2000
+        unhealthy_threshold: 3
+        healthy_threshold: 2
+        initializing_timeout: 60000
+        reinitializing_timeout: 60000
 
 {{- if eq .Values.ENABLE_ADDONS "true" }}
 addon-starter:
