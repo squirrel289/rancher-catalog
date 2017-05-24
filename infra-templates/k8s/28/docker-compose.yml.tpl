@@ -24,7 +24,7 @@ kubelet:
         {{- else if (ne .Values.POD_INFRA_CONTAINER_IMAGE "") }}
         - --pod-infra-container-image=${POD_INFRA_CONTAINER_IMAGE}
         {{- end }}
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     volumes:
         - /run:/run
         - /var/run:/var/run
@@ -68,7 +68,7 @@ kubelet-unschedulable:
         - --pod-infra-container-image=${POD_INFRA_CONTAINER_IMAGE}
         {{- end }}
         - --register-schedulable=false
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     volumes:
         - /run:/run
         - /var/run:/var/run
@@ -96,10 +96,10 @@ proxy:
         {{- end }}
     command:
         - kube-proxy
-        - --master=http://kubernetes.kubernetes.rancher.internal
+        - --master=https://kubernetes.kubernetes.rancher.internal:6443
         - --v=2
         - --healthz-bind-address=0.0.0.0
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     privileged: true
     net: host
     links:
@@ -137,7 +137,7 @@ kubernetes:
         - --service-cluster-ip-range=10.43.0.0/16
         - --etcd-servers=http://etcd.kubernetes.rancher.internal:2379
         - --insecure-bind-address=0.0.0.0
-        - --insecure-port=80
+        - --insecure-port=0
         - --cloud-provider=${CLOUD_PROVIDER}
         - --allow_privileged=true
         - --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota,ServiceAccount
@@ -153,7 +153,7 @@ kubernetes:
         {{- end }}
     environment:
         KUBERNETES_URL: https://kubernetes.kubernetes.rancher.internal:6443
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     links:
         - etcd
         - rancher-kubernetes-auth
@@ -184,9 +184,9 @@ kubectld:
 scheduler:
     command:
         - kube-scheduler
-        - --master=http://kubernetes.kubernetes.rancher.internal
+        - --master=https://kubernetes.kubernetes.rancher.internal:6443
         - --address=0.0.0.0
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     {{- if eq .Values.CONSTRAINT_TYPE "required" }}
     labels:
         io.rancher.scheduler.affinity:host_label: orchestration=true
@@ -203,7 +203,7 @@ controller-manager:
         - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
         - --root-ca-file=/etc/kubernetes/ssl/ca.pem
         - --service-account-private-key-file=/etc/kubernetes/ssl/key.pem
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     labels:
         {{- if eq .Values.CONSTRAINT_TYPE "required" }}
         io.rancher.scheduler.affinity:host_label: orchestration=true
@@ -219,10 +219,11 @@ rancher-kubernetes-agent:
         io.rancher.scheduler.affinity:host_label: orchestration=true
         {{- end }}
         io.rancher.container.create_agent: "true"
+        io.rancher.container.agent.role: agent,environmentAdmin
         io.rancher.container.agent_service.labels_provider: "true"
     environment:
-        KUBERNETES_URL: http://kubernetes.kubernetes.rancher.internal
-    image: rancher/kubernetes-agent:v0.6.1
+        KUBERNETES_URL: https://kubernetes.kubernetes.rancher.internal:6443
+    image: rancher/kubernetes-agent:v0.6.2
     privileged: true
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
@@ -231,15 +232,15 @@ rancher-kubernetes-agent:
 
 {{- if eq .Values.ENABLE_RANCHER_INGRESS_CONTROLLER "true" }}
 rancher-ingress-controller:
-    image: rancher/lb-service-rancher:v0.7.2
+    image: rancher/lb-service-rancher:v0.7.4
     labels:
         {{- if eq .Values.CONSTRAINT_TYPE "required" }}
         io.rancher.scheduler.affinity:host_label: orchestration=true
         {{- end }}
         io.rancher.container.create_agent: "true"
-        io.rancher.container.agent.role: environment
+        io.rancher.container.agent.role: environmentAdmin
     environment:
-        KUBERNETES_URL: http://kubernetes.kubernetes.rancher.internal
+        KUBERNETES_URL: https://kubernetes.kubernetes.rancher.internal:6443
     command:
         - lb-controller
         - --controller=kubernetes
@@ -258,7 +259,7 @@ rancher-ingress-controller:
 {{- end }}
 
 rancher-kubernetes-auth:
-    image: rancher/kubernetes-auth:v0.0.2
+    image: rancher/kubernetes-auth:v0.0.3
     labels:
         {{- if eq .Values.CONSTRAINT_TYPE "required" }}
         io.rancher.scheduler.affinity:host_label: orchestration=true
@@ -277,7 +278,7 @@ rancher-kubernetes-auth:
 
 {{- if eq .Values.ENABLE_ADDONS "true" }}
 addon-starter:
-    image: rancher/k8s:v1.6.2-rancher3-4
+    image: rancher/k8s:v1.6.4-rancher1-1
     labels:
         {{- if eq .Values.CONSTRAINT_TYPE "required" }}
         io.rancher.scheduler.affinity:host_label: orchestration=true
