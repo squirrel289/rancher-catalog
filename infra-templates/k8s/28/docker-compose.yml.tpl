@@ -91,9 +91,6 @@ proxy:
     labels:
         io.rancher.container.dns: "true"
         io.rancher.scheduler.global: "true"
-        {{- if eq .Values.CONSTRAINT_TYPE "required" }}
-        io.rancher.scheduler.affinity:host_label: compute=true
-        {{- end }}
     command:
         - kube-proxy
         - --master=https://kubernetes.kubernetes.rancher.internal:6443
