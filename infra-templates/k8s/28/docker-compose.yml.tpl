@@ -212,6 +212,7 @@ controller-manager:
         - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
         - --cloud-provider=${CLOUD_PROVIDER}
         - --address=0.0.0.0
+        - --root-ca-file=/etc/kubernetes/ssl/ca.pem
         - --service-account-private-key-file=/etc/kubernetes/ssl/key.pem
     image: rancher/k8s:v1.6.4-rancher1-1
     labels:
