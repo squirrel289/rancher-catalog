@@ -88,15 +88,17 @@ kubelet-unschedulable:
 {{- end }}
 
 proxy:
-    labels:
-        io.rancher.container.dns: "true"
-        io.rancher.scheduler.global: "true"
     command:
         - kube-proxy
-        - --master=https://kubernetes.kubernetes.rancher.internal:6443
+        - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
         - --v=2
         - --healthz-bind-address=0.0.0.0
     image: rancher/k8s:v1.6.4-rancher1-1
+    labels:
+        io.rancher.container.dns: "true"
+        io.rancher.scheduler.global: "true"
+        io.rancher.container.create_agent: "true"
+        io.rancher.container.agent.role: environmentAdmin
     privileged: true
     net: host
     links:
@@ -193,24 +195,24 @@ kubectl-shell:
 scheduler:
     command:
         - kube-scheduler
-        - --master=https://kubernetes.kubernetes.rancher.internal:6443
+        - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
         - --address=0.0.0.0
     image: rancher/k8s:v1.6.4-rancher1-1
-    {{- if eq .Values.CONSTRAINT_TYPE "required" }}
     labels:
+        {{- if eq .Values.CONSTRAINT_TYPE "required" }}
         io.rancher.scheduler.affinity:host_label: orchestration=true
         {{- end }}
+        io.rancher.container.create_agent: "true"
+        io.rancher.container.agent.role: environmentAdmin
     links:
         - kubernetes
 
 controller-manager:
     command:
         - kube-controller-manager
-        - --master=https://kubernetes.kubernetes.rancher.internal:6443
+        - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
         - --cloud-provider=${CLOUD_PROVIDER}
         - --address=0.0.0.0
-        - --kubeconfig=/etc/kubernetes/ssl/kubeconfig
-        - --root-ca-file=/etc/kubernetes/ssl/ca.pem
         - --service-account-private-key-file=/etc/kubernetes/ssl/key.pem
     image: rancher/k8s:v1.6.4-rancher1-1
     labels:
