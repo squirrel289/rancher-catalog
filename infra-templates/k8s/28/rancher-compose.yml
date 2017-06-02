@@ -23,6 +23,7 @@
      - rancher
      - aws
   - variable: RBAC
+    description: Enable Kubernetes role-based access control with integrated Rancher authentication.
     label: Kubernetes RBAC
     required: true
     default: false
