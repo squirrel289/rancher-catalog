@@ -9,7 +9,7 @@ services:
       io.rancher.container.create_agent: 'true'
       io.rancher.container.agent.role: environment
     environment:
-      NFS_SERVER: '${CIFS_SERVER}'
+      CIFS_SERVER: '${CIFS_SERVER}'
       MOUNT_DIR: '${MOUNT_DIR}'
       MOUNT_OPTS: '${MOUNT_OPTS}'
     volumes:
