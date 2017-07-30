@@ -2,7 +2,7 @@ version: '2'
 services:
   cifs-driver:
     privileged: true
-    image: calan/storage-cifs:latest
+    image: calan/storage-cifs
     pid: host
     labels:
       io.rancher.scheduler.global: 'true'
