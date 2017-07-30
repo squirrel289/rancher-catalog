@@ -1,0 +1,8 @@
+name: Rancher CIFS
+description: |
+  Docker volume plugin for CIFS. Supported for CIFS v3.
+version: 0.2.2
+category: Storage
+labels:
+  io.rancher.certified: rancher
+  io.rancher.orchestration.supported: 'cattle,mesos,swarm'
